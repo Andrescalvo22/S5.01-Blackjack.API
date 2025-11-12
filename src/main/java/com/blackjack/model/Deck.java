@@ -2,6 +2,7 @@ package com.blackjack.model;
 
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.UUID;
 
 public class Deck {
     private LinkedList<Card> cards;
@@ -9,10 +10,9 @@ public class Deck {
     public void initializeDeck() {
         for (Suit suit : Suit.values()) {
             for (Rank rank : Rank.values()) {
-                cards.add(new Card(rank, suit));
+                cards.add(new Card(UUID.randomUUID().toString(), suit, rank));
             }
         }
-
     }
 
     public void shuffle() {
