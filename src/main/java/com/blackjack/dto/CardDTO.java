@@ -7,4 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class CardDTO {
     private String rank;
+    private String suit;
 }
