@@ -1,6 +1,7 @@
 package com.blackjack.service;
 
 import com.blackjack.model.*;
+import com.blackjack.dto.*;
 import lombok.Getter;
 
 @Getter
@@ -58,6 +59,52 @@ public class GameService {
         if (playerValue > dealerValue) return "Player Wins!";
         if (dealerValue > playerValue) return "Dealer Wins";
         return "Push (draw)";
+    }
+
+
+    public GameStatusDTO getGameStatus() {
+        return new GameStatusDTO(
+
+                playerHand.getCards().stream()
+                        .map(card -> new CardDTO(card.getRank().name(), card.getSuit().name()))
+                        .toList(),
+
+                playerHand.calculateValue(),
+
+                dealerHand.getCards().stream()
+                        .map(card -> new CardDTO(card.getRank().name(), card.getSuit().name()))
+                        .toList(),
+
+                dealerHand.calculateValue(),
+
+                gameOver
+        );
+    }
+
+    public ActionResponseDTO playerHitAction() {
+
+        if (gameOver) {
+            return new ActionResponseDTO("Game is Over! Start a new Game.", getGameStatus());
+        }
+
+        playerHit();
+
+        if (gameOver) {
+            return new ActionResponseDTO("Player lost, dealer wins!", getGameStatus());
+        }
+
+        return new ActionResponseDTO("Card drawn, player hand value: " + playerHand.calculateValue(), getGameStatus());
+    }
+
+    public ActionResponseDTO playerStandAction() {
+        if (gameOver) {
+            return new ActionResponseDTO("Game is Over! Start a new Game.", getGameStatus());
+        }
+
+        playerStand();
+        String winner = determineWinner();
+
+        return new ActionResponseDTO("Game Over! " + winner, getGameStatus());
     }
 }
 
