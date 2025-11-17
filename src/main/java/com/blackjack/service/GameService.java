@@ -4,6 +4,8 @@ import com.blackjack.model.*;
 import com.blackjack.dto.*;
 import lombok.Getter;
 
+import java.util.stream.Collectors;
+
 @Getter
 public class GameService {
     private Deck deck;
@@ -61,22 +63,16 @@ public class GameService {
         return "Push (draw)";
     }
 
-
     public GameStatusDTO getGameStatus() {
         return new GameStatusDTO(
-
                 playerHand.getCards().stream()
                         .map(card -> new CardDTO(card.getRank().name(), card.getSuit().name()))
-                        .toList(),
-
+                        .collect(Collectors.toList()),
                 playerHand.calculateValue(),
-
                 dealerHand.getCards().stream()
                         .map(card -> new CardDTO(card.getRank().name(), card.getSuit().name()))
-                        .toList(),
-
+                        .collect(Collectors.toList()),
                 dealerHand.calculateValue(),
-
                 gameOver
         );
     }
