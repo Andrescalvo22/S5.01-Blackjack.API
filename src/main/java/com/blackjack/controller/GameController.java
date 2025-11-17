@@ -1,6 +1,7 @@
 package com.blackjack.controller;
 
-import com.blackjack.model.Hand;
+import com.blackjack.dto.ActionResponseDTO;
+import com.blackjack.dto.GameStatusDTO;
 import com.blackjack.service.GameService;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,41 +16,24 @@ public class GameController {
     }
 
     @PostMapping("/start")
-    public String startGame() {
+    public GameStatusDTO startGame() {
         gameService.startNewGame();
-        return "New Game Started!";
+        return gameService.getGameStatus();
     }
 
     @PostMapping("/hit")
-    public String playerHit() {
-        if (gameService.isGameOver()) {
-            return "Game is Over! Start a new Game.";
-        }
-        gameService.playerHit();
-        if (gameService.isGameOver()) {
-            return "Player lost, dealer wins!";
-        }
-        return "Card drawn, player hand value: " + gameService.getPlayerHand().calculateValue();
+    public ActionResponseDTO playerHit() {
+        return gameService.playerHitAction();
     }
 
     @PostMapping("/stand")
-    public String playerStand() {
-        if (gameService.isGameOver()) {
-            return "Game is Over! Start a new Game.";
-        }
-        gameService.playerStand();
-        String winner = gameService.determineWinner();
-        return "Game Over! " + winner;
+    public ActionResponseDTO playerStand() {
+        return gameService.playerStandAction();
     }
 
     @GetMapping("/status")
-    public String gameStatus() {
-        Hand playerHand = gameService.getPlayerHand();
-        Hand dealerHand = gameService.getDealerHand();
-        return "Player Hand: " + playerHand.getCards() + "(value: " + playerHand.calculateValue() + ") \n" +
-                "Dealer Hand: " + dealerHand.getCards() + "(value: " + dealerHand.calculateValue() + ") \n" +
-                "Game Over: " + gameService.isGameOver();
+    public GameStatusDTO gameStatus() {
+        return gameService.getGameStatus();
     }
-
 }
 
