@@ -16,6 +16,5 @@ public class GameStatusDTO {
     private int dealerValue;
 
     private boolean gameOver;
-    private String message;
 
 }
