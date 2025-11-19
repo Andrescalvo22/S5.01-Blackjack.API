@@ -1,39 +1,37 @@
 package com.blackjack.controller;
 
-import com.blackjack.dto.ActionResponseDTO;
-import com.blackjack.dto.GameStatusDTO;
+import com.blackjack.model.Game;
 import com.blackjack.service.GameService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/game")
+@RequestMapping("/api/game")
+@RequiredArgsConstructor
 public class GameController {
 
     private final GameService gameService;
 
-    public GameController() {
-        this.gameService = new GameService();
+    @PostMapping("/start/{playerId}")
+    public Mono<Game> startGame(@PathVariable String playerId) {
+        return gameService.startGame(playerId);
     }
 
-    @PostMapping("/start")
-    public GameStatusDTO startGame() {
-        gameService.startNewGame();
-        return gameService.getGameStatus();
+    @GetMapping("/{id}")
+    public Mono<Game> getGame(@PathVariable String id) {
+        return gameService.getGame(id);
     }
 
-    @PostMapping("/hit")
-    public ActionResponseDTO playerHit() {
-        return gameService.playerHitAction();
+    @PostMapping("/{id}/hit")
+    public Mono<Game> hit(@PathVariable String id) {
+        return gameService.hit(id);
     }
 
-    @PostMapping("/stand")
-    public ActionResponseDTO playerStand() {
-        return gameService.playerStandAction();
-    }
-
-    @GetMapping("/status")
-    public GameStatusDTO gameStatus() {
-        return gameService.getGameStatus();
+    @PostMapping("/{id}/stand")
+    public Mono<Game> stand(@PathVariable String id) {
+        return gameService.stand(id);
     }
 }
+
 
