@@ -1,5 +1,6 @@
 package com.blackjack.service;
 
+import com.blackjack.exception.PlayerNotFoundException;
 import com.blackjack.model.Player;
 import com.blackjack.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,8 @@ public class PlayerService {
     }
 
     public Mono<Player> getPlayerById(String id) {
-        return playerRepository.findById(id);
+        return playerRepository.findById(id)
+                .switchIfEmpty(Mono.error(new PlayerNotFoundException("Player not found with id: " + id)));
     }
 
     public Flux<Player> getAllPlayers() {
@@ -32,6 +34,7 @@ public class PlayerService {
 
     public Mono<Player> updatePlayer(String id, Player updated) {
         return playerRepository.findById(id)
+                .switchIfEmpty(Mono.error(new PlayerNotFoundException("Player not found with id: " + id)))
                 .flatMap(existing -> {
                     existing.setName(updated.getName());
                     return playerRepository.save(existing);
@@ -39,7 +42,9 @@ public class PlayerService {
     }
 
     public Mono<Void> deletePlayer(String id) {
-        return playerRepository.deleteById(id);
+        return playerRepository.deleteById(id)
+                .switchIfEmpty(Mono.error(new PlayerNotFoundException("Player not found with id: " + id)))
+                .then(playerRepository.deleteById(id));
     }
 }
 
