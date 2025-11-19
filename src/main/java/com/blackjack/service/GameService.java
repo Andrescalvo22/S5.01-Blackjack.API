@@ -1,5 +1,6 @@
 package com.blackjack.service;
 
+import com.blackjack.exception.GameNotFoundException;
 import com.blackjack.model.*;
 import com.blackjack.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,17 +43,23 @@ public class GameService {
     }
 
     public Mono<Game> getGame(String id) {
-        return gameRepository.findById(id);
+        return gameRepository.findById(id)
+                .switchIfEmpty(Mono.error(new GameNotFoundException("Game not found with id: " + id)));
     }
 
     public Mono<Game> hit(String gameId) {
         return gameRepository.findById(gameId)
+                .switchIfEmpty(Mono.error(new GameNotFoundException("Game not found with id: " + gameId)))
                 .flatMap(game -> {
 
-                    if (game.isGameOver()) return Mono.just(game);
+                    if (game.isGameOver()) {
+                        return Mono.error(new IllegalArgumentException("Game is already over"));
+                    }
 
                     List<Card> deck = game.getDeck();
-                    if (deck.isEmpty()) return Mono.just(game);
+                    if (deck.isEmpty()) {
+                        return Mono.error(new IllegalArgumentException("No cards left in deck"));
+                    }
 
                     game.getPlayerHand().getCards().add(deck.remove(0));
 
@@ -69,9 +76,12 @@ public class GameService {
 
     public Mono<Game> stand(String gameId) {
         return gameRepository.findById(gameId)
+                .switchIfEmpty(Mono.error(new GameNotFoundException("Game not found with id: " + gameId)))
                 .flatMap(game -> {
 
-                    if (game.isGameOver()) return Mono.just(game);
+                    if (game.isGameOver()) {
+                        return Mono.error(new IllegalArgumentException("Game is already over"));
+                    }
 
                     Hand dealer = game.getDealerHand();
                     List<Card> deck = game.getDeck();
