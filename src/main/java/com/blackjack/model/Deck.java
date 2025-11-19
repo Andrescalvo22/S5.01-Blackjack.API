@@ -1,35 +1,35 @@
 package com.blackjack.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.UUID;
+import java.util.List;
 
 public class Deck {
-    private LinkedList<Card> cards;
 
-    public void initializeDeck() {
+    private final List<Card> cards = new ArrayList<>();
+
+    public Deck() {
         for (Suit suit : Suit.values()) {
             for (Rank rank : Rank.values()) {
-                cards.add(new Card(UUID.randomUUID().toString(), suit, rank));
+                cards.add(new Card(suit, rank));
             }
         }
+        shuffle();
     }
 
     public void shuffle() {
         Collections.shuffle(cards);
     }
 
-    public Card draw() {
-        return cards.poll();
+    public Card drawCard() {
+        return cards.remove(0);
     }
 
-    public int remainingCards() {
+    public int size() {
         return cards.size();
     }
 
-    public Deck() {
-        this.cards = new LinkedList<>();
-        initializeDeck();
-        shuffle();
+    public List<Card> getCards() {
+        return cards;
     }
 }
