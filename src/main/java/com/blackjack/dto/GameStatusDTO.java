@@ -1,17 +1,16 @@
 package com.blackjack.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 
 @Data
-@AllArgsConstructor
-@Getter
-@Setter
+@Builder
 public class GameStatusDTO {
+
+    private String gameId;
+    private String playerId;
 
     private List<CardDTO> playerCards;
     private int playerValue;
@@ -20,5 +19,5 @@ public class GameStatusDTO {
     private int dealerValue;
 
     private boolean gameOver;
-
+    private String winner;
 }
