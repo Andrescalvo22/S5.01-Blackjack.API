@@ -1,107 +1,105 @@
 package com.blackjack.service;
 
 import com.blackjack.model.*;
-import com.blackjack.dto.*;
-import lombok.Getter;
+import com.blackjack.repository.GameRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-import java.util.stream.Collectors;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
-@Getter
+@Service
+@RequiredArgsConstructor
 public class GameService {
-    private Deck deck;
-    private Hand playerHand;
-    private Hand dealerHand;
-    private boolean gameOver;
 
-    public GameService() {
-        startNewGame();
+    private final GameRepository gameRepository;
+
+    public Mono<Game> startGame(String playerId) {
+        Deck deck = new Deck();
+        List<Card> deckList = new ArrayList<>(deck.getCards());
+
+        Hand playerHand = new Hand(new ArrayList<>());
+        Hand dealerHand = new Hand(new ArrayList<>());
+
+        playerHand.getCards().add(deckList.remove(0));
+        playerHand.getCards().add(deckList.remove(0));
+
+        dealerHand.getCards().add(deckList.remove(0));
+
+        Game game = Game.builder()
+                .playerId(playerId)
+                .playerHand(playerHand)
+                .dealerHand(dealerHand)
+                .deck(deckList)
+                .gameOver(false)
+                .winner(null)
+                .createdAt(Instant.now())
+                .build();
+
+        return gameRepository.save(game);
     }
 
-    public void startNewGame() {
-        deck = new Deck();
-        playerHand = new Hand();
-        dealerHand = new Hand();
-        gameOver = false;
-
-        playerHand.addCard(deck.draw());
-        playerHand.addCard(deck.draw());
-
-        dealerHand.addCard(deck.draw());
-        dealerHand.addCard(deck.draw());
+    public Mono<Game> getGame(String id) {
+        return gameRepository.findById(id);
     }
 
-    public void playerHit() {
-        if (!gameOver) {
-            playerHand.addCard(deck.draw());
-            if (playerHand.calculateValue() > 21) {
-                gameOver = true;
-            }
-        }
+    public Mono<Game> hit(String gameId) {
+        return gameRepository.findById(gameId)
+                .flatMap(game -> {
+
+                    if (game.isGameOver()) return Mono.just(game);
+
+                    List<Card> deck = game.getDeck();
+                    if (deck.isEmpty()) return Mono.just(game);
+
+                    game.getPlayerHand().getCards().add(deck.remove(0));
+
+                    int value = game.getPlayerHand().calculateValue();
+
+                    if (value > 21) {
+                        game.setGameOver(true);
+                        game.setWinner("DEALER");
+                    }
+
+                    return gameRepository.save(game);
+                });
     }
 
-    private void dealerTurn() {
-        while (dealerHand.calculateValue() < 17) {
-            dealerHand.addCard(deck.draw());
-        }
-    }
+    public Mono<Game> stand(String gameId) {
+        return gameRepository.findById(gameId)
+                .flatMap(game -> {
 
-    public void playerStand() {
-        if (!gameOver) {
-            dealerTurn();
-            gameOver = true;
-        }
-    }
+                    if (game.isGameOver()) return Mono.just(game);
 
-    public String determineWinner() {
-        int playerValue = playerHand.calculateValue();
-        int dealerValue = dealerHand.calculateValue();
+                    Hand dealer = game.getDealerHand();
+                    List<Card> deck = game.getDeck();
 
-        if (playerValue > 21) return "Dealer Wins!";
-        if (dealerValue > 21) return "Player Wins!";
-        if (playerValue > dealerValue) return "Player Wins!";
-        if (dealerValue > playerValue) return "Dealer Wins";
-        return "Push (draw)";
-    }
+                    while (dealer.calculateValue() < 17 && !deck.isEmpty()) {
+                        dealer.getCards().add(deck.remove(0));
+                    }
 
-    public GameStatusDTO getGameStatus() {
-        return new GameStatusDTO(
-                playerHand.getCards().stream()
-                        .map(card -> new CardDTO(card.getRank().name(), card.getSuit().name()))
-                        .collect(Collectors.toList()),
-                playerHand.calculateValue(),
-                dealerHand.getCards().stream()
-                        .map(card -> new CardDTO(card.getRank().name(), card.getSuit().name()))
-                        .collect(Collectors.toList()),
-                dealerHand.calculateValue(),
-                gameOver
-        );
-    }
+                    int playerValue = game.getPlayerHand().calculateValue();
+                    int dealerValue = dealer.calculateValue();
 
-    public ActionResponseDTO playerHitAction() {
+                    String winner;
 
-        if (gameOver) {
-            return new ActionResponseDTO("Game is Over! Start a new Game.", getGameStatus());
-        }
+                    if (dealerValue > 21 || playerValue > dealerValue) {
+                        winner = "PLAYER";
+                    } else if (playerValue < dealerValue) {
+                        winner = "DEALER";
+                    } else {
+                        winner = "PUSH";
+                    }
 
-        playerHit();
+                    game.setWinner(winner);
+                    game.setGameOver(true);
 
-        if (gameOver) {
-            return new ActionResponseDTO("Player lost, dealer wins!", getGameStatus());
-        }
-
-        return new ActionResponseDTO("Card drawn, player hand value: " + playerHand.calculateValue(), getGameStatus());
-    }
-
-    public ActionResponseDTO playerStandAction() {
-        if (gameOver) {
-            return new ActionResponseDTO("Game is Over! Start a new Game.", getGameStatus());
-        }
-
-        playerStand();
-        String winner = determineWinner();
-
-        return new ActionResponseDTO("Game Over! " + winner, getGameStatus());
+                    return gameRepository.save(game);
+                });
     }
 }
+
 
 
