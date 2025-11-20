@@ -2,8 +2,6 @@ package com.blackjack.model;
 
 import lombok.*;
 
-import lombok.*;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
