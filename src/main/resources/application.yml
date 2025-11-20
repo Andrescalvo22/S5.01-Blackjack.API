@@ -1,0 +1,26 @@
+logging:
+  level:
+    org.springframework: INFO
+    com.blackjack: DEBUG
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://admin:secret@localhost:27017/blackjack
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/blackjack
+    username: root
+    password: Ovlac337
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
