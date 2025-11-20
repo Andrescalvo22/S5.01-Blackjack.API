@@ -1,9 +1,9 @@
 package com.blackjack.repository;
 
-import com.blackjack.model.Player;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import com.blackjack.sqlmodel.PlayerEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PlayerRepository extends ReactiveMongoRepository<Player, String> {
+public interface PlayerRepository extends JpaRepository<PlayerEntity, Long> {
 }
