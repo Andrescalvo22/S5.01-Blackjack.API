@@ -1,42 +1,48 @@
 package com.blackjack.controller;
 
-import com.blackjack.model.Player;
 import com.blackjack.service.PlayerService;
+import com.blackjack.sqlmodel.PlayerEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/player")
+@RequestMapping("/player")
 @RequiredArgsConstructor
 public class PlayerController {
 
-    private final PlayerService playerService;
+    private final PlayerService playerSQLService;
 
     @PostMapping
-    public Mono<Player> create(@RequestBody Player player) {
-        return playerService.createPlayer(player);
+    public PlayerEntity createPlayer(@RequestBody PlayerEntity player) {
+        return playerSQLService.create(player);
     }
 
     @GetMapping("/{id}")
-    public Mono<Player> getById(@PathVariable String id) {
-        return playerService.getPlayerById(id);
+    public PlayerEntity getPlayer(@PathVariable Long id) {
+        return playerSQLService.getById(id);
     }
 
     @GetMapping
-    public Flux<Player> getAll() {
-        return playerService.getAllPlayers();
+    public List<PlayerEntity> getAllPlayers() {
+        return playerSQLService.getAll();
     }
 
     @PutMapping("/{id}")
-    public Mono<Player> update(@PathVariable String id, @RequestBody Player player) {
-        return playerService.updatePlayer(id, player);
+    public PlayerEntity updatePlayer(@PathVariable Long id, @RequestBody PlayerEntity player) {
+        return playerSQLService.update(id, player);
     }
 
     @DeleteMapping("/{id}")
-    public Mono<Void> delete(@PathVariable String id) {
-        return playerService.deletePlayer(id);
+    public void deletePlayer(@PathVariable Long id) {
+        playerSQLService.delete(id);
+    }
+
+    @GetMapping("/ranking")
+    public List<PlayerEntity> getRanking() {
+        return playerSQLService.getRanking();
     }
 }
+
 
