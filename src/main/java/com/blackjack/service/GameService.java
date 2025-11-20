@@ -109,6 +109,10 @@ public class GameService {
                     return gameRepository.save(game);
                 });
     }
+    public Mono<Void> deleteGame(String id) {
+        return gameRepository.deleteById(id);
+    }
+
 }
 
 
