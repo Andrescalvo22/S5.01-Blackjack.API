@@ -1,8 +1,10 @@
 package com.blackjack.controller;
 
-import com.blackjack.dto.*;
+import com.blackjack.dto.ActionResponseDTO;
+import com.blackjack.dto.GameStartDTO;
+import com.blackjack.dto.GameStartRequestDTO;
+import com.blackjack.dto.GameStatusDTO;
 import com.blackjack.mapper.DtoMapper;
-import com.blackjack.model.Game;
 import com.blackjack.service.GameService;
 import com.blackjack.service.PlayerService;
 import com.blackjack.sqlmodel.PlayerEntity;
@@ -15,14 +17,14 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GameController {
 
-    private final GameService gameService;       // Mongo
-    private final PlayerService playerService;   // MySQL
+    private final GameService gameService;
+    private final PlayerService playerService;
 
     @PostMapping("/new")
-    public Mono<GameStartDTO> newGame(@RequestBody GameStartDTO gameStartDTO) {
+    public Mono<GameStartDTO> newGame(@RequestBody GameStartRequestDTO request) {
 
         PlayerEntity newPlayer = PlayerEntity.builder()
-                .name(gameStartDTO.getName())
+                .name(request.getName())
                 .score(0)
                 .gamesPlayed(0)
                 .build();
@@ -34,33 +36,26 @@ public class GameController {
     }
 
     @GetMapping("/{id}")
-    public Mono<GameStatusDTO> getGame(@PathVariable String id) {
+    public Mono<GameStatusDTO> getGame(@PathVariable("id") String id) {
         return gameService.getGame(id)
                 .map(DtoMapper::toGameStatusDTO);
     }
 
-    @PostMapping("/{id}/play")
-    public Mono<ActionResponseDTO> play(
-            @PathVariable String id,
-            @RequestBody PlayRequestDTO request
-    ) {
-        String move = request.getMove().toLowerCase();
+    @PostMapping("/{id}/hit")
+    public Mono<ActionResponseDTO> hit(@PathVariable("id") String id) {
+        return gameService.hit(id)
+                .map(game -> DtoMapper.toActionResponseDTO("Card drawn", game));
+    }
 
-        return switch (move) {
-            case "hit" -> gameService.hit(id)
-                    .map(game -> DtoMapper.toActionResponseDTO("Card drawn", game));
-
-            case "stand" -> gameService.stand(id)
-                    .map(game -> DtoMapper.toActionResponseDTO("Stand complete", game));
-
-            default -> Mono.error(new IllegalArgumentException("Invalid move"));
-        };
+    @PostMapping("/{id}/stand")
+    public Mono<ActionResponseDTO> stand(@PathVariable("id") String id) {
+        return gameService.stand(id)
+                .map(game -> DtoMapper.toActionResponseDTO("Stand complete", game));
     }
 
     @DeleteMapping("/{id}")
-    public Mono<Void> deleteGame(@PathVariable String id) {
+    public Mono<Void> delete(@PathVariable("id") String id) {
         return gameService.deleteGame(id);
     }
 }
-
 
