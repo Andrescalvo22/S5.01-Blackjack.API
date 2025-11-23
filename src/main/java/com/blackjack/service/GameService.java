@@ -110,7 +110,9 @@ public class GameService {
                 });
     }
     public Mono<Void> deleteGame(String id) {
-        return gameRepository.deleteById(id);
+        return gameRepository.findById(id)
+                .switchIfEmpty(Mono.error(new GameNotFoundException("Game not found with id: " + id)))
+                .flatMap(game -> gameRepository.deleteById(id));
     }
 
 }
