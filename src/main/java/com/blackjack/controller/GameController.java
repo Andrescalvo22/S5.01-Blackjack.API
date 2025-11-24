@@ -1,9 +1,6 @@
 package com.blackjack.controller;
 
-import com.blackjack.dto.ActionResponseDTO;
-import com.blackjack.dto.GameStartDTO;
-import com.blackjack.dto.GameStartRequestDTO;
-import com.blackjack.dto.GameStatusDTO;
+import com.blackjack.dto.*;
 import com.blackjack.mapper.DtoMapper;
 import com.blackjack.service.GameService;
 import com.blackjack.service.PlayerService;
@@ -56,6 +53,21 @@ public class GameController {
     @DeleteMapping("/{id}")
     public Mono<Void> delete(@PathVariable("id") String id) {
         return gameService.deleteGame(id);
+    }
+
+    @PostMapping("/{id}/play")
+    public Mono<ActionResponseDTO> play(@PathVariable String id, @RequestBody PlayRequestDTO request) {
+        String move = request.getMove().toLowerCase();
+
+        return switch (move) {
+            case "hit" -> gameService.hit(id)
+                    .map(game -> DtoMapper.toActionResponseDTO("Card Drawn! ", game));
+
+            case "stand" -> gameService.stand(id)
+                    .map(game -> DtoMapper.toActionResponseDTO("Stand Completed! ", game));
+
+            default -> Mono.error(new IllegalArgumentException("Invalid Move: " + move));
+        };
     }
 }
 
