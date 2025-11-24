@@ -1,5 +1,6 @@
 package com.blackjack.service;
 
+import com.blackjack.exception.PlayerNotFoundException;
 import com.blackjack.sqlmodel.PlayerEntity;
 import com.blackjack.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class PlayerService {
 
     public PlayerEntity getById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Player not found with id: " + id));
+                .orElseThrow(() -> new PlayerNotFoundException("Player not found with id: " + id));
     }
 
     public List<PlayerEntity> getAll() {
@@ -30,7 +31,7 @@ public class PlayerService {
 
     public PlayerEntity update(Long id, PlayerEntity data) {
         PlayerEntity player = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Player not found with id: " + id));
+                .orElseThrow(() -> new PlayerNotFoundException("Player not found with id: " + id));
 
         player.setName(data.getName());
         return repository.save(player);
