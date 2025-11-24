@@ -1,5 +1,6 @@
 package com.blackjack.controller;
 
+import com.blackjack.dto.UpdatePlayerNameDTO;
 import com.blackjack.service.PlayerService;
 import com.blackjack.sqlmodel.PlayerEntity;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,11 @@ public class PlayerController {
     }
 
     @PutMapping("/{id}")
-    public PlayerEntity updatePlayer(@PathVariable Long id, @RequestBody PlayerEntity player) {
-        return playerSQLService.update(id, player);
+    public PlayerEntity updatePlayer(@PathVariable("id") Long id, @RequestBody UpdatePlayerNameDTO request) {
+        PlayerEntity entity = new PlayerEntity();
+        entity.setName(request.getName());
+
+        return playerSQLService.update(id, entity);
     }
 
     @DeleteMapping("/{id}")
