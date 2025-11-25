@@ -21,7 +21,7 @@ public class PlayerController {
     }
 
     @GetMapping("/{id}")
-    public PlayerEntity getPlayer(@PathVariable Long id) {
+    public PlayerEntity getPlayer(@PathVariable("id") Long id) {
         return playerSQLService.getById(id);
     }
 
@@ -39,7 +39,7 @@ public class PlayerController {
     }
 
     @DeleteMapping("/{id}")
-    public void deletePlayer(@PathVariable Long id) {
+    public void deletePlayer(@PathVariable("id") Long id) {
         playerSQLService.delete(id);
     }
 
