@@ -21,4 +21,10 @@ public class PlayerEntity {
     private int score;
 
     private int gamesPlayed;
+
+    private int wins;
+
+    private int losses;
+
+    private int ties;
 }
