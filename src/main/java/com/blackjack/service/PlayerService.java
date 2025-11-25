@@ -42,10 +42,29 @@ public class PlayerService {
     }
 
     public List<PlayerEntity> getRanking() {
+
         return repository.findAll()
                 .stream()
-                .sorted((p1, p2) -> Integer.compare(p2.getScore(), p1.getScore()))
+                .sorted((p1, p2) -> {
+
+                    double rate1 = p1.getGamesPlayed() == 0 ? 0 :
+                            (double) p1.getWins() / p1.getGamesPlayed();
+                    double rate2 = p2.getGamesPlayed() == 0 ? 0 :
+                            (double) p2.getWins() / p2.getGamesPlayed();
+
+                    int compareRate = Double.compare(rate2, rate1);
+                    if (compareRate != 0) return compareRate;
+
+                    int compareWins = Integer.compare(p2.getWins(), p1.getWins());
+                    if (compareWins != 0) return compareWins;
+
+                    return Integer.compare(p1.getGamesPlayed(), p2.getGamesPlayed());
+                })
                 .toList();
+    }
+
+    public PlayerEntity save(PlayerEntity player) {
+        return repository.save(player);
     }
 }
 
