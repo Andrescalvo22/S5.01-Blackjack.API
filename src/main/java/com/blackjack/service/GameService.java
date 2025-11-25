@@ -3,6 +3,7 @@ package com.blackjack.service;
 import com.blackjack.exception.GameNotFoundException;
 import com.blackjack.model.*;
 import com.blackjack.repository.GameRepository;
+import com.blackjack.sqlmodel.PlayerEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -16,6 +17,7 @@ import java.util.List;
 public class GameService {
 
     private final GameRepository gameRepository;
+    private final PlayerService playerService;
 
     public Mono<Game> startGame(String playerId) {
         Deck deck = new Deck();
@@ -68,6 +70,8 @@ public class GameService {
                     if (value > 21) {
                         game.setGameOver(true);
                         game.setWinner("DEALER");
+
+                        updatePlayerStats(game.getPlayerId(), "DEALER");
                     }
 
                     return gameRepository.save(game);
@@ -106,15 +110,33 @@ public class GameService {
                     game.setWinner(winner);
                     game.setGameOver(true);
 
+                    updatePlayerStats(game.getPlayerId(), winner);
+
                     return gameRepository.save(game);
                 });
     }
+
     public Mono<Void> deleteGame(String id) {
         return gameRepository.findById(id)
                 .switchIfEmpty(Mono.error(new GameNotFoundException("Game not found with id: " + id)))
                 .flatMap(game -> gameRepository.deleteById(id));
     }
 
+    private void updatePlayerStats(String playerId, String winner) {
+        Long id = Long.parseLong(playerId);
+
+        PlayerEntity player = playerService.getById(id);
+
+        player.setGamesPlayed(player.getGamesPlayed() + 1);
+
+        switch (winner) {
+            case "PLAYER" -> player.setWins(player.getWins() + 1);
+            case "DEALER" -> player.setLosses(player.getLosses() + 1);
+            case "PUSH" -> player.setTies(player.getTies() + 1);
+        }
+
+        playerService.save(player);
+    }
 }
 
 
