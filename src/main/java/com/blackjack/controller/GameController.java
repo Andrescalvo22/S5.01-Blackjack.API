@@ -50,7 +50,7 @@ public class GameController {
                 .map(game -> DtoMapper.toActionResponseDTO("Stand complete", game));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/delete")
     public Mono<Void> delete(@PathVariable("id") String id) {
         return gameService.deleteGame(id);
     }
