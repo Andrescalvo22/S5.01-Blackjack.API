@@ -6,6 +6,7 @@ import com.blackjack.service.GameService;
 import com.blackjack.service.PlayerService;
 import com.blackjack.sqlmodel.PlayerEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -18,6 +19,7 @@ public class GameController {
     private final PlayerService playerService;
 
     @PostMapping("/new")
+    @ResponseStatus(HttpStatus.CREATED)
     public Mono<GameStartDTO> newGame(@RequestBody GameStartRequestDTO request) {
 
         PlayerEntity newPlayer = PlayerEntity.builder()
@@ -56,18 +58,17 @@ public class GameController {
     }
 
     @PostMapping("/{id}/play")
-    public Mono<ActionResponseDTO> play(@PathVariable String id, @RequestBody PlayRequestDTO request) {
+    public Mono<ActionResponseDTO> play(@PathVariable("id") String id, @RequestBody PlayRequestDTO request) {
         String move = request.getMove().toLowerCase();
 
         return switch (move) {
             case "hit" -> gameService.hit(id)
-                    .map(game -> DtoMapper.toActionResponseDTO("Card Drawn! ", game));
-
+                    .map(game -> DtoMapper.toActionResponseDTO("Card Drawn!", game));
             case "stand" -> gameService.stand(id)
-                    .map(game -> DtoMapper.toActionResponseDTO("Stand Completed! ", game));
-
+                    .map(game -> DtoMapper.toActionResponseDTO("Stand Completed!", game));
             default -> Mono.error(new IllegalArgumentException("Invalid Move: " + move));
         };
     }
 }
+
 
