@@ -103,7 +103,8 @@ docker run -p 8081:8080 yourname/blackjack-app:latest
 
 The class diagram of the system:
 
-![UML Diagram](docs/uml_blackjack.svg)
+<img width="1449" height="386" alt="image" src="https://github.com/user-attachments/assets/654a4bb3-b545-4cdb-93fe-0bb407adcbba" />
+
 
 ---
 
