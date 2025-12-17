@@ -11,7 +11,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3307/blackjack
     username: root
-    password: secret
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
