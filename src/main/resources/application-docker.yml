@@ -4,9 +4,9 @@ spring:
       uri: mongodb://admin:secret@mongo:27017/blackjack_db?authSource=admin
 
   datasource:
-    url: jdbc:mysql://localhost:3307/blackjack
+    url: jdbc:mysql://mysql:3306/blackjack
     username: root
-    password: secret
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
